@@ -12,6 +12,7 @@ jupyter = "*"
 numpy = "*"
 scipy = "*"
 tensorflow-gpu = "*"
+jupyter-tensorboard = "*"
 
 
 [dev-packages]
