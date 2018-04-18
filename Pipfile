@@ -10,6 +10,7 @@ numpy = "*"
 scipy = "*"
 tensorflow-gpu = "*"
 plotly = "*"
+tqdm = "*"
 
 [dev-packages]
 
