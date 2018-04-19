@@ -11,6 +11,9 @@ scipy = "*"
 tensorflow-gpu = "*"
 plotly = "*"
 tqdm = "*"
+comet-ml = "*"
+"h5py" = "*"
+librosa = "*"
 
 [dev-packages]
 
