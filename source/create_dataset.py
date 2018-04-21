@@ -70,9 +70,10 @@ def return_valid_label(audio_label):
 
     return "unknown" if audio_label in INVALID_LABELS else audio_label
 
-def create_data_split_spectrogram():
+def create_mel_spectrograms():
     """Split the data into train, validation and test and save to disk as numpy arrays
     """
+    print('Creating Mel-power spectrograms', flush=True)
 
     train_data = []
     train_labels = []
@@ -81,22 +82,22 @@ def create_data_split_spectrogram():
     test_data = []
     test_labels = []
 
-    print('Creating train data')
+    print('Creating train data', flush=True)
     for path in tqdm(train_data_paths):
         train_data.append(get_mel_power_spectrogram(read_audio_file(path)))
         train_labels.append(return_valid_label(path.split(os.path.sep)[0]))
 
-    print('Creating validation data')
+    print('Creating validation data', flush=True)
     for path in tqdm(validation_data_paths):
         validation_data.append(get_mel_power_spectrogram(read_audio_file(path)))
         validation_labels.append(return_valid_label(path.split(os.path.sep)[0]))
 
-    print('Creating test data')
+    print('Creating test data', flush=True)
     for path in tqdm(test_data_paths):
         test_data.append(get_mel_power_spectrogram(read_audio_file(path)))
         test_labels.append(return_valid_label(path.split(os.path.sep)[0]))
 
-    print('Normalizing the data')
+    print('Normalizing the data', flush=True)
     train_data = (np.array(train_data) - np.mean(train_data)) / np.std(train_data)
     validation_data = (np.array(validation_data) - np.mean(validation_data)) / np.std(validation_data)
     test_data = (np.array(test_data) - np.mean(test_data)) / np.std(test_data)
@@ -110,28 +111,27 @@ def create_data_split_spectrogram():
     np.save(os.path.join(PATH_TO_DATA, 'test_labels'), test_labels)
 
 # Removing leading '/data/audio/' from all paths
-print('Finding the path of all audio files')
+print('Finding the path of all audio files', flush=True)
 all_data_paths = glob.glob(os.path.join(PATH_TO_AUDIO, '*', '*'))
 all_data_paths = np.vectorize(str.replace)(all_data_paths, os.path.join(PATH_TO_AUDIO, ''), '')
 
 # Create a lambda function that helps in vectorizing the string replace function
 split_join = lambda x: os.path.join(*str.split(x, '/'))
 
-print('Finding the path for all testing data')
+print('Finding the path for all testing data', flush=True)
 with open(os.path.join(PATH_TO_DATA,'testing_list.txt')) as f:
     test_data_paths = f.readlines()
 test_data_paths = np.vectorize(str.replace)(test_data_paths, '\n', '')
 test_data_paths = np.vectorize(split_join)(test_data_paths)
 
-print('Finding the path for all validation data')
+print('Finding the path for all validation data', flush=True)
 with open(os.path.join(PATH_TO_DATA, 'validation_list.txt')) as f:
     validation_data_paths = f.readlines()
 validation_data_paths = np.vectorize(str.replace)(validation_data_paths, '\n', '')
 validation_data_paths = np.vectorize(split_join)(validation_data_paths)
 
-print('Finding the path for all training data')
+print('Finding the path for all training data', flush=True)
 train_data_paths = list(set(all_data_paths) ^ set(validation_data_paths) ^ set(test_data_paths))
 
-print('Reading all audio files')
-create_data_split_spectrogram()
-print("Done")
+create_mel_spectrograms()
+print('Done', flush=True)
