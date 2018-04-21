@@ -7,6 +7,7 @@ import os
 PATH_TO_DATA = os.path.join(os.getcwd(), 'data')
 PATH_TO_AUDIO = os.path.join(PATH_TO_DATA, 'audio')
 SAMPLING_RATE = 16000
+INVALID_LABELS = ["bed", "bird", "cat", "dog", "happy", "house", "marvin", "sheila", "tree", "wow"]
 
 
 def read_audio_file(audio_file_path):
@@ -49,13 +50,24 @@ def get_mel_power_spectrogram(audio_file, n_fft=1024, hop_length=256, fmax=3000)
     Returns:
         numpy.ndarray -- Mel power spectrogram
     """
-
     return librosa.power_to_db(librosa.feature.melspectrogram(audio_file, 
                                                               sr=SAMPLING_RATE, 
                                                               n_fft=n_ffft, 
                                                               hop_length=hop_length, 
                                                               fmax=fmax), 
                                ref=np.max)
+
+def return_valid_label(audio_label):
+    """Check if label of audio file is valid
+    
+    Arguments:
+        audio_label {str} -- The label of audio file
+    
+    Returns:
+        {str} -- The valid label
+    """
+
+    return "unknown" if audio_label in INVALID_LABELS else audio_label
 
 def create_data_split_spectrogram():
     """Split the data into train, validation and test and save to disk as numpy arrays 
@@ -71,17 +83,17 @@ def create_data_split_spectrogram():
     print('Creating train data')
     for path in train_data_paths:
         train_data.append(get_mel_power_spectrogram(read_audio_file(path)))
-        train_labels.append(path.split(os.path.sep)[0])
+        train_labels.append(return_valid_label(path.split(os.path.sep)[0]))
         
     print('Creating validation data')
     for path in validation_data_paths:
         validation_data.append(get_mel_power_spectrogram(read_audio_file(path)))
-        validation_labels.append(path.split(os.path.sep)[0])
+        validation_labels.append(return_valid_label(path.split(os.path.sep)[0]))
     
     print('Creating test data')
     for path in test_data_paths:
         test_data.append(get_mel_power_spectrogram(read_audio_file(path)))
-        test_labels.append(path.split(os.path.sep)[0])
+        test_labels.append(return_valid_label(path.split(os.path.sep)[0]))
 
     train_data = (np.array(train_data) - np.mean(train_data)) / np.std(train_data)
     validation_data = (np.array(validation_data) - np.mean(validation_data)) / np.std(validation_data)
