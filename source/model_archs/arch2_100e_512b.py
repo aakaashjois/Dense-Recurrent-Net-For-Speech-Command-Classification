@@ -29,24 +29,6 @@ def get_keras_model():
     return model
 
 
-def get_callbacks():
-    keras = tf.keras
-    early_stop_callback = keras.callbacks.EarlyStopping(monitor='val_loss',
-                                                        min_delta=0,
-                                                        patience=10,
-                                                        verbose=0,
-                                                        mode='auto')
-
-    reduce_lr_plateau_callback = keras.callbacks.ReduceLROnPlateau(monitor='val_loss',
-                                                                   factor=0.1,
-                                                                   patience=5,
-                                                                   verbose=0,
-                                                                   mode='auto',
-                                                                   cooldown=0, min_lr=0)
-    csv_logger = keras.callbacks.CSVLogger(ARCH_NAME + '.csv')
-    return [early_stop_callback, reduce_lr_plateau_callback, csv_logger]
-
-
 # Load dataset and one-hot encoded labels
 dataset_utils = utils.DatasetUtils()
 train_data, train_labels = dataset_utils.get_dataset_and_encoded_labels('train_data.npy', 'train_labels.npy')
@@ -55,17 +37,19 @@ validation_data, validation_labels = dataset_utils.get_dataset_and_encoded_label
 test_data, test_labels = dataset_utils.get_dataset_and_encoded_labels('test_data.npy', 'test_labels.npy')
 
 model = get_keras_model()
+keras_utils = utils.KerasUtils()
 model.summary()
 
 start_time = time.time()
-model_history = model.fit(train_data,
-                          train_labels,
-                          epochs=100,
-                          batch_size=512,
-                          validation_data=(validation_data, validation_labels),
-                          shuffle=True,
-                          callbacks=get_callbacks(),
-                          verbose=1)
+model.fit(train_data,
+          train_labels,
+          epochs=100,
+          batch_size=512,
+          validation_data=(validation_data, validation_labels),
+          shuffle=True,
+          class_weights=dataset_utils.get_class_weights(train_labels),
+          callbacks=keras_utils.get_keras_callbacks(ARCH_NAME),
+          verbose=1)
 stop_time = time.time()
 run_time = stop_time - start_time
-model.save(ARCH_NAME + '_' + str(run_time) + 't' + '.h5')
+print('Finished training model. Took {} ms'.format(run_time), flush=True)
