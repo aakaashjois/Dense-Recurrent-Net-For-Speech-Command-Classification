@@ -52,7 +52,7 @@ def get_mel_power_spectrogram(audio_file, n_fft=1024, hop_length=256, fmax=3000)
     """
     return librosa.power_to_db(librosa.feature.melspectrogram(audio_file, 
                                                               sr=SAMPLING_RATE, 
-                                                              n_fft=n_ffft, 
+                                                              n_fft=n_fft, 
                                                               hop_length=hop_length, 
                                                               fmax=fmax), 
                                ref=np.max)
@@ -95,9 +95,12 @@ def create_data_split_spectrogram():
         test_data.append(get_mel_power_spectrogram(read_audio_file(path)))
         test_labels.append(return_valid_label(path.split(os.path.sep)[0]))
 
+    print('Normalizing the data')
     train_data = (np.array(train_data) - np.mean(train_data)) / np.std(train_data)
     validation_data = (np.array(validation_data) - np.mean(validation_data)) / np.std(validation_data)
     test_data = (np.array(test_data) - np.mean(test_data)) / np.std(test_data)
+    
+    print('Saving the data in ' + PATH_TO_DATA)
     np.save(os.path.join(PATH_TO_DATA, 'train_data'), train_data)
     np.save(os.path.join(PATH_TO_DATA, 'train_labels'), train_labels)
     np.save(os.path.join(PATH_TO_DATA, 'validation_data'), validation_data)
@@ -106,23 +109,28 @@ def create_data_split_spectrogram():
     np.save(os.path.join(PATH_TO_DATA, 'test_labels'), test_labels)
 
 # Removing leading '/data/audio/' from all paths
+print('Finding the path of all audio files')
 all_data_paths = glob.glob(os.path.join(PATH_TO_AUDIO, '*', '*'))
 all_data_paths = np.vectorize(str.replace)(all_data_paths, os.path.join(PATH_TO_AUDIO, ''), '')
 
 # Create a lambda function that helps in vectorizing the string replace function
 split_join = lambda x: os.path.join(*str.split(x, '/'))
 
+print('Finding the path for all testing data')
 with open(os.path.join(PATH_TO_DATA,'testing_list.txt')) as f:
     test_data_paths = f.readlines()
 test_data_paths = np.vectorize(str.replace)(test_data_paths, '\n', '')
 test_data_paths = np.vectorize(split_join)(test_data_paths)
 
+print('Finding the path for all validation data')
 with open(os.path.join(PATH_TO_DATA, 'validation_list.txt')) as f:
     validation_data_paths = f.readlines()
 validation_data_paths = np.vectorize(str.replace)(validation_data_paths, '\n', '')
 validation_data_paths = np.vectorize(split_join)(validation_data_paths)
 
+print('Finding the path for all training data')
 train_data_paths = list(set(all_data_paths) ^ set(validation_data_paths) ^ set(test_data_paths))
 
+print('Reading all audio files')
 create_data_split_spectrogram()
 print("Done")
