@@ -1,8 +1,8 @@
 import argparse
 import time
 
-from src.model_generator import ModelGenerator
-from src.utils import DatasetUtils
+from model_generator import ModelGenerator
+from utils import DatasetUtils
 
 # Parse command-line arguments
 parser = argparse.ArgumentParser()
