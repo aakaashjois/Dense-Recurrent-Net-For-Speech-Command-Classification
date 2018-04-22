@@ -41,6 +41,10 @@ class ModelGenerator:
             return self._architecture_2_model(input_shape)
         elif architecture == 3:
             return self._architecture_3_model(input_shape)
+        elif architecture == 4:
+            return self._architecture_4_model(input_shape)
+        elif architecture == 5:
+            return self._architecture_5_model(input_shape)
         else:
             raise ValueError('Unknown architecture.')
 
