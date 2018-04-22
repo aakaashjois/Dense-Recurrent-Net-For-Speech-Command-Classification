@@ -16,16 +16,17 @@ ARCH_NAME = 'arch' + str(args.architecture) + '_' + str(args.epochs) + 'e' + '_'
 # Load dataset and one-hot encoded labels
 dataset_utils = utils.DatasetUtils()
 train_data, train_labels, train_weights = dataset_utils.get_dataset_and_encoded_labels('train_data.npy', 'train_labels.npy', get_weights=True)
-validation_data, validation_labels = dataset_utils.get_dataset_and_encoded_labels('validation_data.npy',
-                                                                                  'validation_labels.npy')
+validation_data, validation_labels = dataset_utils.get_dataset_and_encoded_labels('validation_data.npy', 'validation_labels.npy')
 test_data, test_labels = dataset_utils.get_dataset_and_encoded_labels('test_data.npy', 'test_labels.npy')
 
 model_generator = ModelGenerator(args.architecture)
 model = model_generator.generate()
-keras_utils = utils.KerasUtils()
 model.summary()
 
+keras_utils = utils.KerasUtils()
+
 start_time = time.time()
+
 model.fit(train_data,
           train_labels,
           epochs=100,
@@ -35,6 +36,7 @@ model.fit(train_data,
           class_weight=train_weights,
           callbacks=keras_utils.get_keras_callbacks(ARCH_NAME),
           verbose=1)
+
 stop_time = time.time()
 run_time = stop_time - start_time
 print('Finished training model. Took {} s'.format(run_time), flush=True)

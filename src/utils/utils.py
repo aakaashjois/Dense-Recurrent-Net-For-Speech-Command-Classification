@@ -46,6 +46,7 @@ class DatasetUtils:
 
 class KerasUtils:
     def __init__(self):
+        self.PATH_TO_MODELS = os.path.join(os.getcwd(), 'models')
         self.callbacks = tf.keras.callbacks
 
     def get_keras_callbacks(self, ARCH_NAME):
@@ -60,9 +61,12 @@ class KerasUtils:
                                                                       patience=5,
                                                                       verbose=0,
                                                                       mode='auto',
-                                                                      cooldown=0, min_lr=0)
-        history_logger = self.callbacks.CSVLogger(ARCH_NAME + '.csv')
-        best_model = self.callbacks.ModelCheckpoint(filepath=ARCH_NAME + '.h5',
-                                                    verbose=0,
+                                                                      cooldown=0,
+                                                                      min_lr=0)
+
+        history_logger = self.callbacks.CSVLogger(os.path.join(self.PATH_TO_MODELS, ARCH_NAME) + '.csv')
+
+        best_model = self.callbacks.ModelCheckpoint(filepath=os.path.join(self.PATH_TO_MODELS, ARCH_NAME) + '.h5',
                                                     save_best_only=True)
+        
         return [early_stop_callback, reduce_lr_plateau_callback, history_logger, best_model]
