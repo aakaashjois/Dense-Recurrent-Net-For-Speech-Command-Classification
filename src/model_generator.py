@@ -12,6 +12,7 @@ class ModelGenerator:
         self.Concatenate = tf.keras.layers.Concatenate
         self.BatchNormalization = tf.keras.layers.BatchNormalization
         self.Model = tf.keras.Model
+        self.callbacks = tf.keras.callbacks
 
     def get_keras_model(self, architecture, input_shape):
         """Make Keras model based on user-specified architecture.
