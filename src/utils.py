@@ -1,8 +1,8 @@
-import numpy as np
 import os
+
+import numpy as np
 import tensorflow as tf
 from sklearn.preprocessing import LabelEncoder
-from collections import Counter
 
 
 class DatasetUtils:
@@ -42,27 +42,3 @@ class DatasetUtils:
         uniques, count = np.unique(labels, return_counts=True)
         count = count / max(count)
         return dict(zip(uniques.astype(int), count))
-
-
-class KerasUtils:
-    def __init__(self):
-        self.callbacks = tf.keras.callbacks
-
-    def get_keras_callbacks(self, ARCH_NAME):
-        early_stop_callback = self.callbacks.EarlyStopping(monitor='val_loss',
-                                                           min_delta=0,
-                                                           patience=10,
-                                                           verbose=0,
-                                                           mode='auto')
-
-        reduce_lr_plateau_callback = self.callbacks.ReduceLROnPlateau(monitor='val_loss',
-                                                                      factor=0.1,
-                                                                      patience=5,
-                                                                      verbose=0,
-                                                                      mode='auto',
-                                                                      cooldown=0, min_lr=0)
-        history_logger = self.callbacks.CSVLogger(ARCH_NAME + '.csv')
-        best_model = self.callbacks.ModelCheckpoint(filepath=ARCH_NAME + '.h5',
-                                                    verbose=0,
-                                                    save_best_only=True)
-        return [early_stop_callback, reduce_lr_plateau_callback, history_logger, best_model]
