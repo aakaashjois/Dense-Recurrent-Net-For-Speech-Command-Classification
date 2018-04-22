@@ -34,7 +34,7 @@ def get_keras_model():
 
 # Load dataset and one-hot encoded labels
 dataset_utils = utils.DatasetUtils()
-train_data, train_labels = dataset_utils.get_dataset_and_encoded_labels('train_data.npy', 'train_labels.npy')
+train_data, train_labels, train_weights = dataset_utils.get_dataset_and_encoded_labels('train_data.npy', 'train_labels.npy', get_weights=True)
 validation_data, validation_labels = dataset_utils.get_dataset_and_encoded_labels('validation_data.npy',
                                                                                   'validation_labels.npy')
 test_data, test_labels = dataset_utils.get_dataset_and_encoded_labels('test_data.npy', 'test_labels.npy')
@@ -50,7 +50,7 @@ model.fit(train_data,
           batch_size=512,
           validation_data=(validation_data, validation_labels),
           shuffle=True,
-          class_weights=dataset_utils.get_class_weights(train_labels),
+          class_weights=train_weights,
           callbacks=keras_utils.get_keras_callbacks(ARCH_NAME),
           verbose=1)
 stop_time = time.time()
