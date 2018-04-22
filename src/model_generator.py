@@ -11,6 +11,10 @@ class ModelGenerator:
         self.GlobalAveragePooling2D = tf.keras.layers.GlobalAveragePooling2D
         self.Concatenate = tf.keras.layers.Concatenate
         self.BatchNormalization = tf.keras.layers.BatchNormalization
+        self.Reshape = tf.keras.layers.Reshape
+        self.TimeDistributed = tf.keras.layers.TimeDistributed
+        self.Bidirectional = tf.keras.layers.Bidirectional
+        self.GRU = tf.keras.layers.GRU
         self.Model = tf.keras.Model
         self.callbacks = tf.keras.callbacks
 
@@ -84,6 +88,28 @@ class ModelGenerator:
         conv_5 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_4)
         gap_1 = self.GlobalAveragePooling2D()(conv_5)
         dense = self.Dense(21, activation='softmax')(gap_1)
+        model = self.Model(inputs=input_layer, outputs=dense)
+
+        model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+
+        return model
+
+    def _architecture_4_model(self, input_shape):
+        input_layer = self.Input(shape=input_shape)
+        conv_1 = self.Conv2D(filters=48, kernel_size=(8, 3), padding='same', activation='relu')(input_layer)
+        batch_norm_1 = self.BatchNormalization()(conv_1)
+        conv_2 = self.Conv2D(filters=48, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_1)
+        batch_norm_2 = self.BatchNormalization()(conv_2)
+        conv_3 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_2)
+        batch_norm_3 = self.BatchNormalization()(conv_3)
+        concat = self.Concatenate(axis=3)([batch_norm_3, batch_norm_1])
+        conv_4 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(concat)
+        batch_norm_4 = self.BatchNormalization()(conv_4)
+        conv_5 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_4)
+        reshape = self.Reshape((conv_5.output_shape[1], conv_5.output_shape[2]*conv_5.output_shape[3]))(conv_5)
+        time_distributed = self.TimeDistributed(self.Dense(512))(reshape)
+        rnn = self.Bidirectional(self.GRU(256))(time_distributed)
+        dense = self.Dense(21, activation='softmax')(rnn)
         model = self.Model(inputs=input_layer, outputs=dense)
 
         model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
