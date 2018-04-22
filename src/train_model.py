@@ -25,11 +25,12 @@ test_data, test_labels = dataset_utils.get_dataset_and_encoded_labels('test_data
 
 # Get Keras model and show summary
 model_generator = ModelGenerator()
-model = model_generator.get_keras_model(1, train_data.shape[1:])
+model = model_generator.get_keras_model(args.architecture, train_data.shape[1:])
 model.summary()
 
 # Train model and log training time
 start_time = time.time()
+
 model.fit(train_data,
           train_labels,
           epochs=100,
@@ -39,6 +40,7 @@ model.fit(train_data,
           class_weight=train_weights,
           callbacks=model_generator.get_keras_callbacks(ARCH_NAME),
           verbose=1)
+
 stop_time = time.time()
 run_time = stop_time - start_time
 print('Finished training model in {} s.'.format(run_time), flush=True)

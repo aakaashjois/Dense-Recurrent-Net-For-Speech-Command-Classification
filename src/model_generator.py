@@ -1,8 +1,10 @@
+import os
 import tensorflow as tf
 
 
 class ModelGenerator:
     def __init__(self):
+        self.PATH_TO_MODELS = os.path.join(os.getcwd(), 'models')
         self.Input = tf.keras.layers.Input
         self.Conv2D = tf.keras.layers.Conv2D
         self.Dense = tf.keras.layers.Dense
@@ -10,7 +12,6 @@ class ModelGenerator:
         self.Concatenate = tf.keras.layers.Concatenate
         self.BatchNormalization = tf.keras.layers.BatchNormalization
         self.Model = tf.keras.Model
-        self.architecture = None
 
     def get_keras_model(self, architecture, input_shape):
         """Make Keras model based on user-specified architecture.
@@ -29,7 +30,6 @@ class ModelGenerator:
             raise ValueError(
                 "Invalid argument input_shape. Expected length 3, got {} instead.".format(len(input_shape)))
 
-        self.architecture = architecture
         if architecture == 1:
             return self._architecture_1_model(input_shape)
         elif architecture == 2:
@@ -102,8 +102,11 @@ class ModelGenerator:
                                                                       verbose=0,
                                                                       mode='auto',
                                                                       cooldown=0, min_lr=0)
-        history_logger = self.callbacks.CSVLogger(ARCH_NAME + '.csv')
-        best_model = self.callbacks.ModelCheckpoint(filepath=ARCH_NAME + '.h5',
+
+        history_logger = self.callbacks.CSVLogger(os.path.join(self.PATH_TO_MODELS, ARCH_NAME) + '.csv')
+
+        best_model = self.callbacks.ModelCheckpoint(filepath=os.path.join(self.PATH_TO_MODELS, ARCH_NAME) + '.h5',
                                                     verbose=0,
                                                     save_best_only=True)
+
         return [early_stop_callback, reduce_lr_plateau_callback, history_logger, best_model]
