@@ -9,6 +9,7 @@ grpcio==1.11.0
 html5lib==1.0.1
 joblib==0.11
 kiwisolver==1.0.1
+librosa==0.6.0
 llvmlite==0.22.0
 Markdown==2.6.11
 matplotlib==2.2.2
@@ -19,6 +20,7 @@ pyparsing==2.2.0
 python-dateutil==2.7.2
 pytz==2018.4
 resampy==0.2.0
+scikit-learn==0.19.1
 scipy==1.0.1
 six==1.11.0
 termcolor==1.1.0

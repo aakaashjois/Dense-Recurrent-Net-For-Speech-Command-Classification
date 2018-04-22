@@ -1,9 +1,9 @@
 import glob
+import os
+
 import librosa
 import numpy as np
-import os
 from tqdm import tqdm
-
 
 PATH_TO_DATA = os.path.join(os.getcwd(), 'data')
 PATH_TO_AUDIO = os.path.join(PATH_TO_DATA, 'audio')
@@ -11,8 +11,8 @@ SAMPLING_RATE = 16000
 INVALID_LABELS = ["bed", "bird", "cat", "dog", "happy", "house", "marvin", "sheila", "tree", "wow"]
 
 
-def read_audio_file(audio_file_path):
-    """Read the .wav file at {audio_file_path} and return it a numpy array
+def _read_audio_file(audio_file_path):
+    """Read the .wav file at {audio_file_path} and return it as a numpy array
 
     Arguments:
         audio_file_path {str} -- absolute path to audio file
@@ -33,11 +33,11 @@ def read_audio_file(audio_file_path):
         audio_file = audio_file[0: SAMPLING_RATE]
     elif len(audio_file) > SAMPLING_RATE:
         length_to_truncate = (len(audio_file) - SAMPLING_RATE) // 2
-        audio_file = audio_file[length_to_truncate : SAMPLING_RATE + length_to_truncate]
+        audio_file = audio_file[length_to_truncate: SAMPLING_RATE + length_to_truncate]
     return audio_file
 
 
-def get_mel_power_spectrogram(audio_file, n_fft=1024, hop_length=256, fmax=3000):
+def _get_mel_power_spectrogram(audio_file, n_fft=1024, hop_length=256, fmax=3000):
     """Generates mel power spectrogram of the {audio_file}
 
     Arguments:
@@ -58,7 +58,8 @@ def get_mel_power_spectrogram(audio_file, n_fft=1024, hop_length=256, fmax=3000)
                                                               fmax=fmax),
                                ref=np.max)
 
-def return_valid_label(audio_label):
+
+def _return_valid_label(audio_label):
     """Check if label of audio file is valid
 
     Arguments:
@@ -69,6 +70,7 @@ def return_valid_label(audio_label):
     """
 
     return "unknown" if audio_label in INVALID_LABELS else audio_label
+
 
 def create_mel_spectrograms():
     """Split the data into train, validation and test and save to disk as numpy arrays
@@ -84,18 +86,18 @@ def create_mel_spectrograms():
 
     print('Creating train data', flush=True)
     for path in tqdm(train_data_paths):
-        train_data.append(get_mel_power_spectrogram(read_audio_file(path)))
-        train_labels.append(return_valid_label(path.split(os.path.sep)[0]))
+        train_data.append(_get_mel_power_spectrogram(_read_audio_file(path)))
+        train_labels.append(_return_valid_label(path.split(os.path.sep)[0]))
 
     print('Creating validation data', flush=True)
     for path in tqdm(validation_data_paths):
-        validation_data.append(get_mel_power_spectrogram(read_audio_file(path)))
-        validation_labels.append(return_valid_label(path.split(os.path.sep)[0]))
+        validation_data.append(_get_mel_power_spectrogram(_read_audio_file(path)))
+        validation_labels.append(_return_valid_label(path.split(os.path.sep)[0]))
 
     print('Creating test data', flush=True)
     for path in tqdm(test_data_paths):
-        test_data.append(get_mel_power_spectrogram(read_audio_file(path)))
-        test_labels.append(return_valid_label(path.split(os.path.sep)[0]))
+        test_data.append(_get_mel_power_spectrogram(_read_audio_file(path)))
+        test_labels.append(_return_valid_label(path.split(os.path.sep)[0]))
 
     print('Normalizing the data', flush=True)
     train_data = (np.array(train_data) - np.mean(train_data)) / np.std(train_data)
@@ -110,6 +112,7 @@ def create_mel_spectrograms():
     np.save(os.path.join(PATH_TO_DATA, 'test_data'), test_data)
     np.save(os.path.join(PATH_TO_DATA, 'test_labels'), test_labels)
 
+
 # Removing leading '/data/audio/' from all paths
 print('Finding the path of all audio files', flush=True)
 all_data_paths = glob.glob(os.path.join(PATH_TO_AUDIO, '*', '*'))
@@ -119,7 +122,7 @@ all_data_paths = np.vectorize(str.replace)(all_data_paths, os.path.join(PATH_TO_
 split_join = lambda x: os.path.join(*str.split(x, '/'))
 
 print('Finding the path for all testing data', flush=True)
-with open(os.path.join(PATH_TO_DATA,'testing_list.txt')) as f:
+with open(os.path.join(PATH_TO_DATA, 'testing_list.txt')) as f:
     test_data_paths = f.readlines()
 test_data_paths = np.vectorize(str.replace)(test_data_paths, '\n', '')
 test_data_paths = np.vectorize(split_join)(test_data_paths)
