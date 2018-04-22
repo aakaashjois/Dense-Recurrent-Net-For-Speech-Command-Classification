@@ -24,7 +24,7 @@ def get_keras_model():
     conv_4 = Conv2D(filters=48, kernel_size=(8, 3), padding='same', activation='relu')(concat)
     conv_5 = Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(conv_4)
     gap_1 = GlobalAveragePooling2D()(conv_5)
-    dense = Dense(30, activation='softmax')(gap_1)
+    dense = Dense(21, activation='softmax')(gap_1)
     model = Model(inputs=input_layer, outputs=dense)
 
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
@@ -50,7 +50,7 @@ model.fit(train_data,
           batch_size=512,
           validation_data=(validation_data, validation_labels),
           shuffle=True,
-          class_weights=train_weights,
+          class_weight=train_weights,
           callbacks=keras_utils.get_keras_callbacks(ARCH_NAME),
           verbose=1)
 stop_time = time.time()
