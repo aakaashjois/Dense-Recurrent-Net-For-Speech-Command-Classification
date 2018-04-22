@@ -106,9 +106,8 @@ class ModelGenerator:
         conv_4 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(concat)
         batch_norm_4 = self.BatchNormalization()(conv_4)
         conv_5 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_4)
-        reshape = self.Reshape((conv_5.output_shape[1], conv_5.output_shape[2]*conv_5.output_shape[3]))(conv_5)
-        time_distributed = self.TimeDistributed(self.Dense(512))(reshape)
-        rnn = self.Bidirectional(self.GRU(256))(time_distributed)
+        reshape = self.Reshape((conv_5.shape[1], conv_5.shape[2]*conv_5.shape[3]))(conv_5)
+        rnn = self.Bidirectional(self.GRU(256))(reshape)
         dense = self.Dense(21, activation='softmax')(rnn)
         model = self.Model(inputs=input_layer, outputs=dense)
 
