@@ -8,6 +8,7 @@ class ModelGenerator:
         self.Input = tf.keras.layers.Input
         self.Conv2D = tf.keras.layers.Conv2D
         self.Dense = tf.keras.layers.Dense
+        self.GlobalAveragePooling1D = tf.keras.layers.GlobalAveragePooling1D
         self.GlobalAveragePooling2D = tf.keras.layers.GlobalAveragePooling2D
         self.Concatenate = tf.keras.layers.Concatenate
         self.BatchNormalization = tf.keras.layers.BatchNormalization
@@ -227,19 +228,17 @@ class ModelGenerator:
         conv_1 = self.Conv2D(filters=48, kernel_size=(8, 3), padding='same', activation='relu')(input_layer)
         batch_norm_1 = self.BatchNormalization()(conv_1)
         conv_2 = self.Conv2D(filters=48, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_1)
-        conv_2_drop = self.Dropout(rate=0.25)(conv_2)
-        batch_norm_2 = self.BatchNormalization()(conv_2_drop)
+        batch_norm_2 = self.BatchNormalization()(conv_2)
         conv_3 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_2)
         batch_norm_3 = self.BatchNormalization()(conv_3)
         concat = self.Concatenate(axis=3)([batch_norm_3, batch_norm_1])
         conv_4 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(concat)
         batch_norm_4 = self.BatchNormalization()(conv_4)
         conv_5 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_4)
-        conv_5_drop = self.Dropout(rate=0.25)(conv_5)
-        reshape = self.Reshape((int(conv_5_drop.shape[1]), int(conv_5_drop.shape[2] * conv_5_drop.shape[3])))(
-            conv_5_drop)
-        rnn = self.Bidirectional(self.GRU(64, dropout=0.20))(reshape)
-        dense = self.Dense(21, activation='softmax')(rnn)
+        reshape = self.Reshape((int(conv_5.shape[1]), int(conv_5.shape[2] * conv_5.shape[3])))(conv_5)
+        rnn = self.Bidirectional(self.GRU(64))(reshape)
+        gap1d = self.GlobalAveragePooling1D()(rnn)
+        dense = self.Dense(21, activation='softmax')(gap1d)
         model = self.Model(inputs=input_layer, outputs=dense)
 
         model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
