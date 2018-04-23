@@ -120,6 +120,8 @@ class ModelGenerator:
 
         model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
+        return model
+
     def _architecture_5_model(self, input_shape):
         input_layer = self.Input(shape=input_shape)
         conv_1 = self.Conv2D(filters=48, kernel_size=(8, 3), padding='same', activation='relu')(input_layer)
