@@ -55,6 +55,8 @@ class ModelGenerator:
             return self._architecture_8_model(input_shape)
         elif architecture == 9:
             return self._architecture_9_model(input_shape)
+        elif architecture == 10:
+            return self._architecture_10_model(input_shape)
         else:
             raise ValueError('Unknown architecture.')
 
@@ -239,6 +241,30 @@ class ModelGenerator:
         rnn = self.Bidirectional(self.GRU(64))(reshape)
         gap1d = self.GlobalAveragePooling1D()(rnn)
         dense = self.Dense(21, activation='softmax')(gap1d)
+        model = self.Model(inputs=input_layer, outputs=dense)
+
+        model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+
+        return model
+
+    def _architecture_10_model(self, input_shape):
+        input_layer = self.Input(shape=input_shape)
+        conv_1 = self.Conv2D(filters=48, kernel_size=(8, 3), padding='same', activation='relu')(input_layer)
+        batch_norm_1 = self.BatchNormalization()(conv_1)
+        conv_2 = self.Conv2D(filters=48, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_1)
+        conv_2_drop = self.Dropout(rate=0.25)(conv_2)
+        batch_norm_2 = self.BatchNormalization()(conv_2_drop)
+        conv_3 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_2)
+        batch_norm_3 = self.BatchNormalization()(conv_3)
+        concat = self.Concatenate(axis=3)([batch_norm_3, batch_norm_1])
+        conv_4 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(concat)
+        conv_4_drop = self.Dropout(rate=0.25)(conv_4)
+        batch_norm_4 = self.BatchNormalization()(conv_4_drop)
+        conv_5 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_4)
+        gap = self.GlobalAveragePooling2D(data_format='channels_first')(conv_5)
+        reshape = self.Reshape((int(gap.shape[1]), 1))(gap)
+        rnn = self.Bidirectional(self.GRU(42))(reshape)
+        dense = self.Dense(21, activation='softmax')(rnn)
         model = self.Model(inputs=input_layer, outputs=dense)
 
         model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
