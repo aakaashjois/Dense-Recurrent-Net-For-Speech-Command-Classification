@@ -16,8 +16,8 @@ class ModelGenerator:
         self.Bidirectional = tf.keras.layers.Bidirectional
         self.GRU = tf.keras.layers.GRU
         self.Model = tf.keras.Model
-        self.GlobalAveragePooling2D = tf.keras.pooling.GlobalAveragePooling2D
-        self.GlobalMaxPooling2D = tf.keras.pooling.GlobalMaxPooling2D
+        self.GlobalAveragePooling2D = tf.keras.layers.GlobalAveragePooling2D
+        self.GlobalMaxPooling2D = tf.keras.layers.GlobalMaxPooling2D
         self.callbacks = tf.keras.callbacks
 
     def get_keras_model(self, architecture, input_shape):
