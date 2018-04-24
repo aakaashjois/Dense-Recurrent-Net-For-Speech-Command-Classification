@@ -43,31 +43,21 @@ class ModelGenerator:
             return self._architecture_2_model(input_shape)
         elif architecture == 3:
             return self._architecture_3_model(input_shape)
-        elif architecture == 4:
-            return self._architecture_4_model(input_shape)
-        elif architecture == 5:
-            return self._architecture_5_model(input_shape)
-        elif architecture == 6:
-            return self._architecture_6_model(input_shape)
-        elif architecture == 7:
-            return self._architecture_7_model(input_shape)
-        elif architecture == 8:
-            return self._architecture_8_model(input_shape)
-        elif architecture == 9:
-            return self._architecture_9_model(input_shape)
         else:
             raise ValueError('Unknown architecture.')
 
     def _architecture_1_model(self, input_shape):
-        # ResNet
+        # Vanilla + BatchNorm + 0.15 Dropout
         input_layer = self.Input(shape=input_shape)
         conv_1 = self.Conv2D(filters=48, kernel_size=(8, 3), padding='same', activation='relu')(input_layer)
-        conv_2 = self.Conv2D(filters=48, kernel_size=(8, 3), padding='same', activation='relu')(conv_1)
-        conv_3 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(conv_2)
-        concat = self.Concatenate(axis=3)([conv_3, conv_1])
-        conv_4 = self.Conv2D(filters=48, kernel_size=(8, 3), padding='same', activation='relu')(concat)
-        conv_5 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(conv_4)
-        gap_1 = self.GlobalAveragePooling2D()(conv_5)
+        batch_norm_1 = self.BatchNormalization()(conv_1)
+        conv_2 = self.Conv2D(filters=48, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_1)
+        batch_norm_2 = self.BatchNormalization()(conv_2)
+        conv_3 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_2)
+        batch_norm_3 = self.BatchNormalization()(conv_3)
+        conv_4 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_3)
+        conv_4_drop = self.Dropout(rate=0.15)(conv_4)
+        gap_1 = self.GlobalAveragePooling2D()(conv_4_drop)
         dense = self.Dense(21, activation='softmax')(gap_1)
         model = self.Model(inputs=input_layer, outputs=dense)
 
@@ -76,13 +66,20 @@ class ModelGenerator:
         return model
 
     def _architecture_2_model(self, input_shape):
-        # Vanilla
+        # ResNet + BatchNorm + 0.15 Dropout
         input_layer = self.Input(shape=input_shape)
         conv_1 = self.Conv2D(filters=48, kernel_size=(8, 3), padding='same', activation='relu')(input_layer)
-        conv_2 = self.Conv2D(filters=48, kernel_size=(8, 3), padding='same', activation='relu')(conv_1)
-        conv_3 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(conv_2)
-        conv_4 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(conv_3)
-        gap_1 = self.GlobalAveragePooling2D()(conv_4)
+        batch_norm_1 = self.BatchNormalization()(conv_1)
+        conv_2 = self.Conv2D(filters=48, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_1)
+        batch_norm_2 = self.BatchNormalization()(conv_2)
+        conv_3 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_2)
+        batch_norm_3 = self.BatchNormalization()(conv_3)
+        concat = self.Concatenate(axis=3)([batch_norm_3, batch_norm_1])
+        conv_4 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(concat)
+        batch_norm_4 = self.BatchNormalization()(conv_4)
+        conv_5 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_4)
+        conv_5_drop = self.Dropout(rate=0.15)(conv_5)
+        gap_1 = self.GlobalAveragePooling2D()(conv_5_drop)
         dense = self.Dense(21, activation='softmax')(gap_1)
         model = self.Model(inputs=input_layer, outputs=dense)
 
@@ -91,91 +88,7 @@ class ModelGenerator:
         return model
 
     def _architecture_3_model(self, input_shape):
-        # ResNet + BatchNorm
-        input_layer = self.Input(shape=input_shape)
-        conv_1 = self.Conv2D(filters=48, kernel_size=(8, 3), padding='same', activation='relu')(input_layer)
-        batch_norm_1 = self.BatchNormalization()(conv_1)
-        conv_2 = self.Conv2D(filters=48, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_1)
-        batch_norm_2 = self.BatchNormalization()(conv_2)
-        conv_3 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_2)
-        batch_norm_3 = self.BatchNormalization()(conv_3)
-        concat = self.Concatenate(axis=3)([batch_norm_3, batch_norm_1])
-        conv_4 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(concat)
-        batch_norm_4 = self.BatchNormalization()(conv_4)
-        conv_5 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_4)
-        gap_1 = self.GlobalAveragePooling2D()(conv_5)
-        dense = self.Dense(21, activation='softmax')(gap_1)
-        model = self.Model(inputs=input_layer, outputs=dense)
-
-        model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-
-        return model
-
-    def _architecture_4_model(self, input_shape):
-        input_layer = self.Input(shape=input_shape)
-        conv_1 = self.Conv2D(filters=48, kernel_size=(8, 3), padding='same', activation='relu')(input_layer)
-        batch_norm_1 = self.BatchNormalization()(conv_1)
-        conv_2 = self.Conv2D(filters=48, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_1)
-        batch_norm_2 = self.BatchNormalization()(conv_2)
-        conv_3 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_2)
-        batch_norm_3 = self.BatchNormalization()(conv_3)
-        concat = self.Concatenate(axis=3)([batch_norm_3, batch_norm_1])
-        conv_4 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(concat)
-        batch_norm_4 = self.BatchNormalization()(conv_4)
-        conv_5 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_4)
-        reshape = self.Reshape((int(conv_5.shape[1]), int(conv_5.shape[2] * conv_5.shape[3])))(conv_5)
-        rnn = self.Bidirectional(self.GRU(256))(reshape)
-        dense = self.Dense(21, activation='softmax')(rnn)
-        model = self.Model(inputs=input_layer, outputs=dense)
-
-        model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-
-        return model
-
-    def _architecture_5_model(self, input_shape):
-        input_layer = self.Input(shape=input_shape)
-        conv_1 = self.Conv2D(filters=48, kernel_size=(8, 3), padding='same', activation='relu')(input_layer)
-        batch_norm_1 = self.BatchNormalization()(conv_1)
-        conv_2 = self.Conv2D(filters=48, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_1)
-        batch_norm_2 = self.BatchNormalization()(conv_2)
-        conv_3 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_2)
-        batch_norm_3 = self.BatchNormalization()(conv_3)
-        concat = self.Concatenate(axis=3)([batch_norm_3, batch_norm_1])
-        conv_4 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(concat)
-        batch_norm_4 = self.BatchNormalization()(conv_4)
-        conv_5 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_4)
-        reshape = self.Reshape((int(conv_5.shape[1]), int(conv_5.shape[2] * conv_5.shape[3])))(conv_5)
-        time_distributed = self.TimeDistributed(self.Dense(512))(reshape)
-        rnn = self.Bidirectional(self.GRU(256))(time_distributed)
-        dense = self.Dense(21, activation='softmax')(rnn)
-        model = self.Model(inputs=input_layer, outputs=dense)
-
-        model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-
-        return model
-
-    def _architecture_6_model(self, input_shape):
-        input_layer = self.Input(shape=input_shape)
-        conv_1 = self.Conv2D(filters=48, kernel_size=(8, 3), padding='same', activation='relu')(input_layer)
-        batch_norm_1 = self.BatchNormalization()(conv_1)
-        conv_2 = self.Conv2D(filters=48, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_1)
-        batch_norm_2 = self.BatchNormalization()(conv_2)
-        conv_3 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_2)
-        batch_norm_3 = self.BatchNormalization()(conv_3)
-        concat = self.Concatenate(axis=3)([batch_norm_3, batch_norm_1])
-        conv_4 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(concat)
-        batch_norm_4 = self.BatchNormalization()(conv_4)
-        conv_5 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_4)
-        reshape = self.Reshape((int(conv_5.shape[1]), int(conv_5.shape[2] * conv_5.shape[3])))(conv_5)
-        rnn = self.Bidirectional(self.GRU(64))(reshape)
-        dense = self.Dense(21, activation='softmax')(rnn)
-        model = self.Model(inputs=input_layer, outputs=dense)
-
-        model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-
-        return model
-
-    def _architecture_7_model(self, input_shape):
+        # Recurrent ResNet + BatchNorm + 0.15 Dropout
         input_layer = self.Input(shape=input_shape)
         conv_1 = self.Conv2D(filters=48, kernel_size=(8, 3), padding='same', activation='relu')(input_layer)
         batch_norm_1 = self.BatchNormalization()(conv_1)
@@ -188,56 +101,10 @@ class ModelGenerator:
         conv_4 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(concat)
         batch_norm_4 = self.BatchNormalization()(conv_4)
         conv_5 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_4)
-        conv_5_drop = self.Dropout(rate=0.25)(conv_5)
+        conv_5_drop = self.Dropout(rate=0.15)(conv_5)
         reshape = self.Reshape((int(conv_5_drop.shape[1]), int(conv_5_drop.shape[2] * conv_5_drop.shape[3])))(
             conv_5_drop)
         rnn = self.Bidirectional(self.GRU(64))(reshape)
-        dense = self.Dense(21, activation='softmax')(rnn)
-        model = self.Model(inputs=input_layer, outputs=dense)
-
-        model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-
-        return model
-
-    def _architecture_8_model(self, input_shape):
-        input_layer = self.Input(shape=input_shape)
-        conv_1 = self.Conv2D(filters=48, kernel_size=(8, 3), padding='same', activation='relu')(input_layer)
-        batch_norm_1 = self.BatchNormalization()(conv_1)
-        conv_2 = self.Conv2D(filters=48, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_1)
-        conv_2_drop = self.Dropout(rate=0.25)(conv_2)
-        batch_norm_2 = self.BatchNormalization()(conv_2_drop)
-        conv_3 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_2)
-        batch_norm_3 = self.BatchNormalization()(conv_3)
-        concat = self.Concatenate(axis=3)([batch_norm_3, batch_norm_1])
-        conv_4 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(concat)
-        batch_norm_4 = self.BatchNormalization()(conv_4)
-        conv_5 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_4)
-        conv_5_drop = self.Dropout(rate=0.25)(conv_5)
-        reshape = self.Reshape((int(conv_5_drop.shape[1]), int(conv_5_drop.shape[2] * conv_5_drop.shape[3])))(
-            conv_5_drop)
-        rnn = self.Bidirectional(self.GRU(64, unroll=True))(reshape)
-        dense = self.Dense(21, activation='softmax')(rnn)
-        model = self.Model(inputs=input_layer, outputs=dense)
-
-        model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-
-        return model
-
-    def _architecture_9_model(self, input_shape):
-        input_layer = self.Input(shape=input_shape)
-        conv_1 = self.Conv2D(filters=48, kernel_size=(8, 3), padding='same', activation='relu')(input_layer)
-        batch_norm_1 = self.BatchNormalization()(conv_1)
-        conv_2 = self.Conv2D(filters=48, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_1)
-        conv_2_drop = self.Dropout(rate=0.25)(conv_2)
-        batch_norm_2 = self.BatchNormalization()(conv_2_drop)
-        conv_3 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_2)
-        batch_norm_3 = self.BatchNormalization()(conv_3)
-        concat = self.Concatenate(axis=3)([batch_norm_3, batch_norm_1])
-        conv_4 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(concat)
-        batch_norm_4 = self.BatchNormalization()(conv_4)
-        conv_5 = self.Conv2D(filters=36, kernel_size=(8, 3), padding='same', activation='relu')(batch_norm_4)
-        reshape = self.Reshape((int(conv_5.shape[1]), int(conv_5.shape[2] * conv_5.shape[3])))(conv_5)
-        rnn = self.Bidirectional(self.GRU(64), dropout=0.1)(reshape)
         dense = self.Dense(21, activation='softmax')(rnn)
         model = self.Model(inputs=input_layer, outputs=dense)
 
