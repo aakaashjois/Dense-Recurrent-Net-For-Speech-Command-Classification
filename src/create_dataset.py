@@ -102,7 +102,7 @@ def create_mel_spectrograms():
     print('Creating test data', flush=True)
     for path in tqdm(test_data_paths):
         test_data.append(_get_mel_power_spectrogram(_read_audio_file(path)))
-        test_labels_unrolled(path.split(os.path.sep)[0])
+        test_labels_unrolled.append(path.split(os.path.sep)[0])
         test_labels.append(_return_valid_label(path.split(os.path.sep)[0]))
 
     print('Normalizing the data', flush=True)

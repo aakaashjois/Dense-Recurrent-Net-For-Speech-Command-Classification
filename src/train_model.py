@@ -21,7 +21,6 @@ train_data, train_labels, train_weights = dataset_utils.get_dataset_and_encoded_
                                                                                        get_weights=True)
 validation_data, validation_labels = dataset_utils.get_dataset_and_encoded_labels('validation_data.npy',
                                                                                   'validation_labels.npy')
-test_data, test_labels = dataset_utils.get_dataset_and_encoded_labels('test_data.npy', 'test_labels.npy')
 
 # Get Keras model and show summary
 model_generator = ModelGenerator()
