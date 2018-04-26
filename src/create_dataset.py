@@ -79,24 +79,30 @@ def create_mel_spectrograms():
 
     train_data = []
     train_labels = []
+    train_labels_unrolled = []
     validation_data = []
     validation_labels = []
+    validation_labels_unrolled = []
     test_data = []
     test_labels = []
+    test_labels_unrolled = []
 
     print('Creating train data', flush=True)
     for path in tqdm(train_data_paths):
         train_data.append(_get_mel_power_spectrogram(_read_audio_file(path)))
+        train_labels_unrolled.append(path.split(os.path.sep)[0])
         train_labels.append(_return_valid_label(path.split(os.path.sep)[0]))
 
     print('Creating validation data', flush=True)
     for path in tqdm(validation_data_paths):
         validation_data.append(_get_mel_power_spectrogram(_read_audio_file(path)))
+        validation_labels_unrolled.append(path.split(os.path.sep)[0])
         validation_labels.append(_return_valid_label(path.split(os.path.sep)[0]))
 
     print('Creating test data', flush=True)
     for path in tqdm(test_data_paths):
         test_data.append(_get_mel_power_spectrogram(_read_audio_file(path)))
+        test_labels_unrolled(path.split(os.path.sep)[0])
         test_labels.append(_return_valid_label(path.split(os.path.sep)[0]))
 
     print('Normalizing the data', flush=True)
@@ -107,10 +113,13 @@ def create_mel_spectrograms():
     print('Saving the data in ' + PATH_TO_DATA)
     np.save(os.path.join(PATH_TO_DATA, 'train_data'), train_data)
     np.save(os.path.join(PATH_TO_DATA, 'train_labels'), train_labels)
+    np.save(os.path.join(PATH_TO_DATA, 'train_labels_unrolled'), train_labels_unrolled)
     np.save(os.path.join(PATH_TO_DATA, 'validation_data'), validation_data)
     np.save(os.path.join(PATH_TO_DATA, 'validation_labels'), validation_labels)
+    np.save(os.path.join(PATH_TO_DATA, 'validation_labels_unrolled'), validation_labels_unrolled)
     np.save(os.path.join(PATH_TO_DATA, 'test_data'), test_data)
     np.save(os.path.join(PATH_TO_DATA, 'test_labels'), test_labels)
+    np.save(os.path.join(PATH_TO_DATA, 'test_labels_unrolled'), test_labels_unrolled)
 
 
 # Removing leading '/data/audio/' from all paths
