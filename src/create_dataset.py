@@ -188,6 +188,7 @@ if __name__ == '__main__':
     noisy = args['noisy']
 
 dataset_creator = CreateDataset()
+
 # Removing leading '/data/audio/' from all paths
 print('Finding path to all audio', flush=True)
 all_data_paths = glob.glob(os.path.join(dataset_creator.PATH_TO_AUDIO, '*', '*'))
