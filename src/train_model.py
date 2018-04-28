@@ -6,7 +6,7 @@ from utils import DatasetUtils
 
 # Parse command-line arguments
 parser = argparse.ArgumentParser()
-parser.add_argument('-a', '--architecture', help='Compiles Keras model of architecture number [options: 1 or 2]',
+parser.add_argument('-a', '--architecture', help='Compiles Keras model of architecture number [options: 1, 2 or 3]',
                     type=int)
 parser.add_argument('-e', '--epochs', help='Number of training epochs', type=int)
 parser.add_argument('-b', '--batch_size', help='Training batch size', type=int)
@@ -33,8 +33,8 @@ start_time = time.time()
 
 model.fit(train_data,
           train_labels,
-          epochs=100,
-          batch_size=512,
+          epochs=args.epochs,
+          batch_size=args.batch_size,
           validation_data=(validation_data, validation_labels),
           shuffle=True,
           class_weight=train_weights,

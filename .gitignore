@@ -1,8 +1,7 @@
 data/
 \.ipynb_checkpoints/
+venv/
 env/
 \.idea/
-
 src/__pycache__/
-
 models/
