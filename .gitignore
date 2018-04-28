@@ -4,4 +4,3 @@ venv/
 env/
 \.idea/
 src/__pycache__/
-models/
