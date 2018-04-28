@@ -21,7 +21,7 @@ class DatasetUtils:
         labels = np.load(os.path.join(self.PATH_TO_DATA, labels_path))
         labels = self.label_encoder.transform(labels)
         if get_weights:
-            weights_dict = self.get_class_weights(labels)
+            weights_dict = self._get_keras_class_weights(labels)
             labels = self.keras.utils.to_categorical(labels)
             return dataset, labels, weights_dict
         # One-hot encode the labels
@@ -37,8 +37,8 @@ class DatasetUtils:
 
         return label_encoder
 
-    def get_class_weights(self, labels):
-        # Generate class weights as described by Chris Dinant at https://github.com/chrisdinant/speech/blob/master/train.ipynb
+    def _get_keras_class_weights(self, labels):
+        # Generate class weights for Keras as described by Chris Dinant at https://github.com/chrisdinant/speech/blob/master/train.ipynb
         uniques, count = np.unique(labels, return_counts=True)
         count = count / max(count)
         return dict(zip(uniques.astype(int), count))
