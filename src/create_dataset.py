@@ -37,7 +37,7 @@ class CreateDataset():
         # Read audio file
         # If audio file is shroter than 16000 samples, zero-pad keeping the audio in the center
         # If audio file is longer than 16000 samples, center crop to 16000 samples
-        audio_file = librosa.load(os.path.join(self.PATH_TO_AUDIO, audio_file_path))[0]
+        audio_file = librosa.load(os.path.join(self.PATH_TO_AUDIO, audio_file_path), sr=SAMPLING_RATE)[0]
         if len(audio_file) < self.SAMPLING_RATE:
             if len(audio_file) % 2 == 1:
                 audio_file = np.append(audio_file, [0])
